@@ -1,38 +1,41 @@
 package tszpinda.chat
 
 import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.asLiveData
+import androidx.lifecycle.viewModelScope
+import kotlinx.coroutines.launch
+import kotlin.random.Random
 
-private val savedMessages = mutableListOf(
-    MessageRaw("Hello tomek! How are things\nAndroid projects suck", MessageType.IN),
-    MessageRaw("they are all a bit boring", MessageType.IN),
-    MessageRaw("Hey Johny, you quite right", MessageType.OUT),
-    MessageRaw("have you tried iOS\n that's even worse!", MessageType.OUT),
-    MessageRaw("Anyway lets go for a beer!", MessageType.IN)
-)
-
-fun mapMessages(raw: List<MessageRaw>): List<Message> {
-    return raw.mapIndexed { i, raw ->
+fun mapMessages(list: List<MessageRaw>): List<Message> {
+    return list.mapIndexed { i: Int, raw: MessageRaw ->
         Message(
+            raw.id,
             raw.text,
             raw.type,
             raw.time,
-            tail(i, savedMessages)
+            tail(i, list)
         )
     }
 }
 
-class ChatViewModel: ViewModel() {
+class ChatViewModel(private val repo: MessageRepository): ViewModel() {
 
-    private val _messages = MutableLiveData(mapMessages(savedMessages))
-    val messages: LiveData<List<Message>>
-        get() = _messages
+    val allMessages: LiveData<List<MessageRaw>> = repo.allMessages.asLiveData();
 
-    fun addMessage(msg: String) {
-        savedMessages.add(MessageRaw(msg, MessageType.OUT))
-        this._messages.value = mapMessages(savedMessages)
+    fun add(msg: String) = viewModelScope.launch {
+        repo.insert(MessageRaw(id=0, msg, if (Random.nextBoolean()) MessageType.OUT else MessageType.IN))
     }
 
+}
 
+class ChatViewModelFactory(private val repository: MessageRepository) : ViewModelProvider.Factory {
+    override fun <T : ViewModel> create(modelClass: Class<T>): T {
+        if (modelClass.isAssignableFrom(ChatViewModel::class.java)) {
+            @Suppress("UNCHECKED_CAST")
+            return ChatViewModel(repository) as T
+        }
+        throw IllegalArgumentException("Unknown ViewModel class")
+    }
 }

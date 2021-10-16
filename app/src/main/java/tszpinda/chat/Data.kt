@@ -1,11 +1,47 @@
 package tszpinda.chat
+
+import androidx.room.ColumnInfo
+import androidx.room.Dao
+import androidx.room.Entity
+import androidx.room.Insert
+import androidx.room.PrimaryKey
+import androidx.room.Query
+import kotlinx.coroutines.flow.Flow
+
 enum class MessageType {
     IN, OUT
 }
-class MessageRaw (val text: String, val type: MessageType, val time: Long = System.currentTimeMillis())
-class Message (val text: String, val type: MessageType, val time: Long = System.currentTimeMillis(), val tail: Boolean = false)
 
-class Messages (val data: MutableList<Message>)
+@Entity(tableName = "messages")
+class MessageRaw(
+    @PrimaryKey(autoGenerate = true) val id: Int,
+    val text: String,
+    val type: MessageType,
+    @ColumnInfo(name = "message_time")
+    val time: Long = System.currentTimeMillis())
+
+
+@Dao
+interface MessageDao {
+
+    @Query("select * from messages order by message_time asc")
+    fun getAll(): Flow<List<MessageRaw>>
+
+    @Insert
+    suspend fun insert(msg: MessageRaw)
+}
+
+class MessageRepository(private val messageDao: MessageDao) {
+    val allMessages: Flow<List<MessageRaw>> = messageDao.getAll()
+    suspend fun insert(message: MessageRaw) {
+        messageDao.insert(message)
+    }
+}
+
+
+data class Message (val id: Int, val text: String, val type: MessageType, val time: Long = System.currentTimeMillis(), val tail: Boolean = false)
+
+class Messages (val data: List<Message>)
 
 fun isMostRecent(msgIndex: Int, messages: List<MessageRaw>) = msgIndex == messages.size - 1
 fun isSentByAnotherUser(msgIndex: Int, messages: List<MessageRaw>) = msgIndex > 0 && messages[msgIndex].type != messages[msgIndex - 1].type

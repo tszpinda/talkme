@@ -7,7 +7,7 @@ import org.junit.Assert.*
 class MessageTailTest {
 
     private fun msg(type: MessageType = MessageType.IN, time: Long = System.currentTimeMillis()) =
-        MessageRaw("hi", type, time)
+        MessageRaw(1, "hi", type, time)
 
     @Test
     fun most_recent_in_conversation() {

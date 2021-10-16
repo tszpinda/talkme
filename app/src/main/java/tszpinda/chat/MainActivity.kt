@@ -4,8 +4,10 @@ import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.ViewGroup
-import androidx.lifecycle.ViewModelProvider
+import androidx.activity.viewModels
+import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import androidx.viewbinding.ViewBinding
 import tszpinda.chat.databinding.ActivityMainBinding
@@ -19,6 +21,9 @@ import tszpinda.chat.databinding.ChatBubbleOutBinding
 class MainActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityMainBinding
+    private val viewModel: ChatViewModel by viewModels {
+        ChatViewModelFactory((application as App).repository)
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -30,24 +35,31 @@ class MainActivity : AppCompatActivity() {
         layoutManager.stackFromEnd = true
         results.layoutManager = layoutManager
 
-        val viewModel = ViewModelProvider(this).get(ChatViewModel::class.java)
         val adapter = MessageDataAdapter()
         results.adapter = adapter
-        viewModel.messages.observe(this) {
-            adapter.setMessages(Messages(it.toMutableList()))
+
+        viewModel.allMessages.observe(this) {
+            val mapped = mapMessages(it)
+            adapter.submitList(mapped)
+            layoutManager.scrollToPositionWithOffset(mapped.size - 1, 0)
         }
+        adapter.registerAdapterDataObserver(object : RecyclerView.AdapterDataObserver() {
+            override fun onItemRangeInserted(positionStart: Int, itemCount: Int) {
+                layoutManager.scrollToPositionWithOffset(positionStart, 0)
+            }
+        })
 
 
-        binding.send.setOnClickListener { _ ->
+        binding.send.setOnClickListener {
             with(binding.messageInput) {
-                viewModel.addMessage(text.toString())
+                viewModel.add(text.toString())
                 text.clear()
             }
-            binding.messages.smoothScrollToPosition(adapter.itemCount)
         }
 
     }
 }
+
 
 sealed class MessageViewHolder(binding: ViewBinding) : RecyclerView.ViewHolder(binding.root) {
 
@@ -64,14 +76,12 @@ sealed class MessageViewHolder(binding: ViewBinding) : RecyclerView.ViewHolder(b
     }
 }
 
-class MessageDataAdapter : RecyclerView.Adapter<MessageViewHolder>() {
+object MessageDiff: DiffUtil.ItemCallback<Message>() {
+    override fun areItemsTheSame(oldItem: Message, newItem: Message) = oldItem.id == newItem.id
+    override fun areContentsTheSame(oldItem: Message, newItem: Message) = oldItem == newItem
+}
 
-    private var messages: Messages = Messages(mutableListOf())
-
-    fun setMessages(messages: Messages) {
-        this.messages = Messages(messages.data.toMutableList())
-        notifyDataSetChanged()
-    }
+class MessageDataAdapter : ListAdapter<Message, MessageViewHolder>(MessageDiff) {
 
     override fun onCreateViewHolder(vg: ViewGroup, viewType: Int): MessageViewHolder {
         return when (viewType) {
@@ -89,20 +99,18 @@ class MessageDataAdapter : RecyclerView.Adapter<MessageViewHolder>() {
     }
 
     override fun onBindViewHolder(viewHolder: MessageViewHolder, position: Int) {
-        val msg = messages.data[position]
+        val msg = getItem(position)
         val nt = msg.text + "\ntail?: ${msg.tail}"
-        val m = Message(nt, msg.type, msg.time)
+        val m = Message(msg.id, nt, msg.type, msg.time)
 
         when (viewHolder) {
-            is MessageViewHolder.MessageInHolder -> viewHolder.bind(m);
-            is MessageViewHolder.MessageOutHolder -> viewHolder.bind(m);
+            is MessageViewHolder.MessageInHolder -> viewHolder.bind(m)
+            is MessageViewHolder.MessageOutHolder -> viewHolder.bind(m)
         }
     }
 
-    override fun getItemCount() = messages.data.size
-
     override fun getItemViewType(position: Int): Int {
-        return messages.data[position].type.ordinal
+        return getItem(position).type.ordinal
     }
 
 }
