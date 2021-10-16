@@ -4,6 +4,7 @@ import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.ViewGroup
+import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import androidx.viewbinding.ViewBinding
@@ -19,14 +20,6 @@ class MainActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityMainBinding
 
-    private val messages = mutableListOf(
-        Message("Hello tomek! How are things\nAndroid projects suck", MessageType.IN),
-        Message("they are all a bit boring", MessageType.IN),
-        Message("Hey Johny, you quite right", MessageType.OUT),
-        Message("have you tried iOS\n that's even worse!", MessageType.OUT),
-        Message("Anyway lets go for a beer!", MessageType.IN)
-    )
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityMainBinding.inflate(layoutInflater)
@@ -37,13 +30,17 @@ class MainActivity : AppCompatActivity() {
         layoutManager.stackFromEnd = true
         results.layoutManager = layoutManager
 
-        val adapter = MessageDataAdapter(Messages(messages))
+        val viewModel = ViewModelProvider(this).get(ChatViewModel::class.java)
+        val adapter = MessageDataAdapter()
         results.adapter = adapter
+        viewModel.messages.observe(this) {
+            adapter.setMessages(Messages(it.toMutableList()))
+        }
+
 
         binding.send.setOnClickListener { _ ->
             with(binding.messageInput) {
-                // TODO add to db
-                adapter.addMessage(Message(text.toString(), MessageType.OUT))
+                viewModel.addMessage(text.toString())
                 text.clear()
             }
             binding.messages.smoothScrollToPosition(adapter.itemCount)
@@ -67,7 +64,14 @@ sealed class MessageViewHolder(binding: ViewBinding) : RecyclerView.ViewHolder(b
     }
 }
 
-class MessageDataAdapter(private val messages: Messages) : RecyclerView.Adapter<MessageViewHolder>() {
+class MessageDataAdapter : RecyclerView.Adapter<MessageViewHolder>() {
+
+    private var messages: Messages = Messages(mutableListOf())
+
+    fun setMessages(messages: Messages) {
+        this.messages = Messages(messages.data.toMutableList())
+        notifyDataSetChanged()
+    }
 
     override fun onCreateViewHolder(vg: ViewGroup, viewType: Int): MessageViewHolder {
         return when (viewType) {
@@ -86,12 +90,7 @@ class MessageDataAdapter(private val messages: Messages) : RecyclerView.Adapter<
 
     override fun onBindViewHolder(viewHolder: MessageViewHolder, position: Int) {
         val msg = messages.data[position]
-        val lastMessage = position - 1 == messages.data.size
-        val lastMessageDiffType = position > 0 && msg.type != messages.data[position - 1].type
-        val nextMessageAfter20sec = position < messages.data.size - 1 && messages.data[position + 1].time - msg.time > 20 * 1000
-        val tail = lastMessage || lastMessageDiffType || nextMessageAfter20sec
-
-        val nt = msg.text + "\ntail?: $tail"
+        val nt = msg.text + "\ntail?: ${msg.tail}"
         val m = Message(nt, msg.type, msg.time)
 
         when (viewHolder) {
@@ -106,8 +105,4 @@ class MessageDataAdapter(private val messages: Messages) : RecyclerView.Adapter<
         return messages.data[position].type.ordinal
     }
 
-    fun addMessage(msg: Message) {
-        messages.data.add(msg)
-        notifyItemChanged(itemCount - 1)
-    }
 }
