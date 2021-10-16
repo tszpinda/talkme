@@ -17,7 +17,7 @@ import tszpinda.chat.databinding.ChatBubbleOutBinding
 // TODO
 // - dark mode
 // - nav bar
-
+// 
 class MainActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityMainBinding
@@ -66,12 +66,16 @@ sealed class MessageViewHolder(binding: ViewBinding) : RecyclerView.ViewHolder(b
     class MessageInHolder(private val binding: ChatBubbleInBinding) : MessageViewHolder(binding) {
         fun bind(msg: Message) {
             binding.chatMessage.text = msg.text
+            val bg = if (msg.tail) R.drawable.chat_bubble_in_tail else R.drawable.chat_bubble_in
+            binding.chatMessage.setBackgroundResource(bg)
         }
     }
 
     class MessageOutHolder(private val binding: ChatBubbleOutBinding) : MessageViewHolder(binding) {
         fun bind(msg: Message) {
             binding.chatMessage.text = msg.text
+            val bg = if (msg.tail) R.drawable.chat_bubble_out_tail else R.drawable.chat_bubble_out
+            binding.chatMessage.setBackgroundResource(bg)
         }
     }
 }
@@ -100,12 +104,9 @@ class MessageDataAdapter : ListAdapter<Message, MessageViewHolder>(MessageDiff) 
 
     override fun onBindViewHolder(viewHolder: MessageViewHolder, position: Int) {
         val msg = getItem(position)
-        val nt = msg.text + "\ntail?: ${msg.tail}"
-        val m = Message(msg.id, nt, msg.type, msg.time)
-
         when (viewHolder) {
-            is MessageViewHolder.MessageInHolder -> viewHolder.bind(m)
-            is MessageViewHolder.MessageOutHolder -> viewHolder.bind(m)
+            is MessageViewHolder.MessageInHolder -> viewHolder.bind(msg)
+            is MessageViewHolder.MessageOutHolder -> viewHolder.bind(msg)
         }
     }
 

@@ -41,8 +41,6 @@ class MessageRepository(private val messageDao: MessageDao) {
 
 data class Message (val id: Int, val text: String, val type: MessageType, val time: Long = System.currentTimeMillis(), val tail: Boolean = false)
 
-class Messages (val data: List<Message>)
-
 fun isMostRecent(msgIndex: Int, messages: List<MessageRaw>) = msgIndex == messages.size - 1
 fun isSentByAnotherUser(msgIndex: Int, messages: List<MessageRaw>) = msgIndex > 0 && messages[msgIndex].type != messages[msgIndex - 1].type
 fun isNextMessageAfter20Sec(msgIndex: Int, messages: List<MessageRaw>) = msgIndex != messages.size -1 && messages[msgIndex + 1].time - messages[msgIndex].time > 20 * 1000
