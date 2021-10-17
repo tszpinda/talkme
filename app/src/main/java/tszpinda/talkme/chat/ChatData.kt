@@ -1,4 +1,4 @@
-package tszpinda.chat
+package tszpinda.talkme.chat
 
 import androidx.room.ColumnInfo
 import androidx.room.Dao

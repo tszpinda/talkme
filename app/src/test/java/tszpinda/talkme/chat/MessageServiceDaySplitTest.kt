@@ -1,9 +1,9 @@
-package tszpinda.chat
+package tszpinda.talkme.chat
 
 import org.junit.Test
 import com.google.common.truth.Truth.assertThat
 import com.google.common.truth.Correspondence
-import tszpinda.chat.MessageService.mapMessages
+import tszpinda.talkme.chat.MessageService.mapMessages
 import java.time.LocalDateTime
 import java.time.ZoneId
 import java.time.format.DateTimeFormatter
@@ -14,7 +14,7 @@ val messageTypeTransform: Correspondence<Message, MessageType> =
         "type"
     )
 
-class DaySplitTest {
+class MessageServiceDaySplitTest {
 
     private fun msg(dateTime: String) =
         MessageRaw(1,

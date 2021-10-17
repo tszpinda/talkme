@@ -1,4 +1,4 @@
-package tszpinda.chat
+package tszpinda.talkme.chat
 
 object MessageService {
     fun isMostRecent(msgIndex: Int, messages: List<MessageRaw>) = msgIndex == messages.size - 1

@@ -1,17 +1,17 @@
-package tszpinda.chat
+package tszpinda.talkme.chat
 
 import org.junit.Test
 
 import com.google.common.truth.Truth.assertThat
 import com.google.common.truth.Truth.assertWithMessage
-import tszpinda.chat.MessageService.isMostRecent
-import tszpinda.chat.MessageService.isNextMessageAfter20Sec
-import tszpinda.chat.MessageService.isSentByAnotherUser
+import tszpinda.talkme.chat.MessageService.isMostRecent
+import tszpinda.talkme.chat.MessageService.isNextMessageAfter20Sec
+import tszpinda.talkme.chat.MessageService.isSentByAnotherUser
 import java.time.LocalDateTime
 import java.time.ZoneId
 import java.time.format.DateTimeFormatter
 
-class MessageTailTest {
+class MessageServiceTailTest {
 
     private fun msg(type: MessageType = MessageType.IN, dateTime: String = "2021-10-17 10:00:00") =
         MessageRaw(1, "hi", type, parseDateTime(dateTime))

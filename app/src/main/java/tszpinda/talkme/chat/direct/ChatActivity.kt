@@ -1,4 +1,4 @@
-package tszpinda.chat
+package tszpinda.talkme.chat.direct
 
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
@@ -10,24 +10,28 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import androidx.viewbinding.ViewBinding
-import tszpinda.chat.databinding.ActivityMainBinding
-import tszpinda.chat.databinding.ChatBubbleInBinding
-import tszpinda.chat.databinding.ChatBubbleOutBinding
-import tszpinda.chat.databinding.ChatDateDividerBinding
+import tszpinda.talkme.databinding.ChatBubbleInBinding
+import tszpinda.talkme.databinding.ChatBubbleOutBinding
+import tszpinda.talkme.databinding.ChatDateDividerBinding
+import tszpinda.talkme.App
+import tszpinda.talkme.R
+import tszpinda.talkme.chat.Message
+import tszpinda.talkme.chat.MessageType
+import tszpinda.talkme.databinding.ActivityChatBinding
 
 // TODO
 // - dark mode
 // - nav bar
-class MainActivity : AppCompatActivity() {
+class ChatActivity : AppCompatActivity() {
 
-    private lateinit var binding: ActivityMainBinding
+    private lateinit var binding: ActivityChatBinding
     private val viewModel: ChatViewModel by viewModels {
         ChatViewModelFactory((application as App).repository)
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        binding = ActivityMainBinding.inflate(layoutInflater)
+        binding = ActivityChatBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
         val results: RecyclerView = binding.messages

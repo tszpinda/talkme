@@ -8,7 +8,7 @@ android {
     compileSdk 31
 
     defaultConfig {
-        applicationId "tszpinda.chat"
+        applicationId "tszpinda.talkme.chat"
         minSdk 26
         targetSdk 31
         versionCode 1
