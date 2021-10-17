@@ -7,9 +7,13 @@ import androidx.room.Insert
 import androidx.room.PrimaryKey
 import androidx.room.Query
 import kotlinx.coroutines.flow.Flow
+import java.time.Instant.ofEpochMilli
+import java.time.LocalDateTime
+import java.time.ZoneId.systemDefault
+import java.time.format.DateTimeFormatter
 
 enum class MessageType {
-    IN, OUT
+    IN, OUT, DATE
 }
 
 @Entity(tableName = "messages")
@@ -40,6 +44,9 @@ class MessageRepository(private val messageDao: MessageDao) {
 
 
 data class Message (val id: Int, val text: String, val type: MessageType, val time: Long = System.currentTimeMillis(), val tail: Boolean = false)
+
+private val MESSAGE_DISPLAY_DATE = DateTimeFormatter.ofPattern("EEEE HH:mm")
+fun Message.displayDate(): String = LocalDateTime.ofInstant(ofEpochMilli(this.time), systemDefault()).format(MESSAGE_DISPLAY_DATE)
 
 fun isMostRecent(msgIndex: Int, messages: List<MessageRaw>) = msgIndex == messages.size - 1
 fun isSentByAnotherUser(msgIndex: Int, messages: List<MessageRaw>) = msgIndex > 0 && messages[msgIndex].type != messages[msgIndex - 1].type

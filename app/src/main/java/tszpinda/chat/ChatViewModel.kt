@@ -9,7 +9,7 @@ import kotlinx.coroutines.launch
 import kotlin.random.Random
 
 fun mapMessages(list: List<MessageRaw>): List<Message> {
-    return list.mapIndexed { i: Int, raw: MessageRaw ->
+    val messages = list.mapIndexed { i: Int, raw: MessageRaw ->
         Message(
             raw.id,
             raw.text,
@@ -18,6 +18,23 @@ fun mapMessages(list: List<MessageRaw>): List<Message> {
             tail(i, list)
         )
     }
+
+
+    val withTimeSeparator = messages.toMutableList()
+    var lastTime = 0L
+    val iterator = withTimeSeparator.listIterator()
+    while (iterator.hasNext()) {
+        val m = iterator.next()
+        if (m.time - lastTime <= 1000 * 60 * 60)
+            continue
+        val date = m.displayDate()
+        iterator.previous()
+        iterator.add(m.copy(text = date, type = MessageType.DATE))
+        iterator.next()
+        lastTime = m.time
+    }
+
+    return withTimeSeparator
 }
 
 class ChatViewModel(private val repo: MessageRepository): ViewModel() {

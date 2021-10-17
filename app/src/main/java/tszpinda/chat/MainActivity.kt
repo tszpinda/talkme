@@ -13,11 +13,12 @@ import androidx.viewbinding.ViewBinding
 import tszpinda.chat.databinding.ActivityMainBinding
 import tszpinda.chat.databinding.ChatBubbleInBinding
 import tszpinda.chat.databinding.ChatBubbleOutBinding
+import tszpinda.chat.databinding.ChatDateDividerBinding
 
 // TODO
 // - dark mode
 // - nav bar
-// 
+// - map message to run on bg thread
 class MainActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityMainBinding
@@ -32,10 +33,11 @@ class MainActivity : AppCompatActivity() {
 
         val results: RecyclerView = binding.messages
         val layoutManager = LinearLayoutManager(this)
-        layoutManager.stackFromEnd = true
-        results.layoutManager = layoutManager
-
         val adapter = MessageDataAdapter()
+
+        layoutManager.stackFromEnd = true
+
+        results.layoutManager = layoutManager
         results.adapter = adapter
 
         viewModel.allMessages.observe(this) {
@@ -49,7 +51,6 @@ class MainActivity : AppCompatActivity() {
             }
         })
 
-
         binding.send.setOnClickListener {
             with(binding.messageInput) {
                 viewModel.add(text.toString())
@@ -60,22 +61,33 @@ class MainActivity : AppCompatActivity() {
     }
 }
 
+// Separate MessageHolders for In and Out message as they are likely
+// diff in functionality. Out could have delivery/read status added.
+// In could have a option to be delete a message.
 
-sealed class MessageViewHolder(binding: ViewBinding) : RecyclerView.ViewHolder(binding.root) {
+abstract class MessageViewHolder(binding: ViewBinding) : RecyclerView.ViewHolder(binding.root) {
 
-    class MessageInHolder(private val binding: ChatBubbleInBinding) : MessageViewHolder(binding) {
-        fun bind(msg: Message) {
+    abstract fun bind(msg: Message)
+
+    class InMessageHolder(private val binding: ChatBubbleInBinding) : MessageViewHolder(binding) {
+        override fun bind(msg: Message) {
             binding.chatMessage.text = msg.text
             val bg = if (msg.tail) R.drawable.chat_bubble_in_tail else R.drawable.chat_bubble_in
             binding.chatMessage.setBackgroundResource(bg)
         }
     }
 
-    class MessageOutHolder(private val binding: ChatBubbleOutBinding) : MessageViewHolder(binding) {
-        fun bind(msg: Message) {
+    class OutMessageHolder(private val binding: ChatBubbleOutBinding) : MessageViewHolder(binding) {
+        override fun bind(msg: Message) {
             binding.chatMessage.text = msg.text
             val bg = if (msg.tail) R.drawable.chat_bubble_out_tail else R.drawable.chat_bubble_out
             binding.chatMessage.setBackgroundResource(bg)
+        }
+    }
+
+    class DateMessageHolder(private val binding: ChatDateDividerBinding) : MessageViewHolder(binding) {
+        override fun bind(msg: Message) {
+            binding.date.text = msg.text
         }
     }
 }
@@ -89,13 +101,18 @@ class MessageDataAdapter : ListAdapter<Message, MessageViewHolder>(MessageDiff) 
 
     override fun onCreateViewHolder(vg: ViewGroup, viewType: Int): MessageViewHolder {
         return when (viewType) {
-            MessageType.IN.ordinal -> MessageViewHolder.MessageInHolder(
+            MessageType.IN.ordinal -> MessageViewHolder.InMessageHolder(
                 ChatBubbleInBinding.inflate(LayoutInflater.from(vg.context),
                 vg,
                 false)
             )
-            else -> MessageViewHolder.MessageOutHolder(
+            MessageType.OUT.ordinal -> MessageViewHolder.OutMessageHolder(
                 ChatBubbleOutBinding.inflate(LayoutInflater.from(vg.context),
+                    vg,
+                    false)
+            )
+            else -> MessageViewHolder.DateMessageHolder(
+                ChatDateDividerBinding.inflate(LayoutInflater.from(vg.context),
                     vg,
                     false)
             )
@@ -103,11 +120,7 @@ class MessageDataAdapter : ListAdapter<Message, MessageViewHolder>(MessageDiff) 
     }
 
     override fun onBindViewHolder(viewHolder: MessageViewHolder, position: Int) {
-        val msg = getItem(position)
-        when (viewHolder) {
-            is MessageViewHolder.MessageInHolder -> viewHolder.bind(msg)
-            is MessageViewHolder.MessageOutHolder -> viewHolder.bind(msg)
-        }
+        viewHolder.bind(getItem(position))
     }
 
     override fun getItemViewType(position: Int): Int {
