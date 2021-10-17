@@ -3,6 +3,7 @@ package tszpinda.chat
 import org.junit.Test
 import com.google.common.truth.Truth.assertThat
 import com.google.common.truth.Correspondence
+import tszpinda.chat.MessageService.mapMessages
 import java.time.LocalDateTime
 import java.time.ZoneId
 import java.time.format.DateTimeFormatter

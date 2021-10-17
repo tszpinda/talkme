@@ -18,7 +18,6 @@ import tszpinda.chat.databinding.ChatDateDividerBinding
 // TODO
 // - dark mode
 // - nav bar
-// - map message to run on bg thread
 class MainActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityMainBinding
@@ -41,9 +40,8 @@ class MainActivity : AppCompatActivity() {
         results.adapter = adapter
 
         viewModel.allMessages.observe(this) {
-            val mapped = mapMessages(it)
-            adapter.submitList(mapped)
-            layoutManager.scrollToPositionWithOffset(mapped.size - 1, 0)
+            adapter.submitList(it)
+            layoutManager.scrollToPositionWithOffset(it.size - 1, 0)
         }
         adapter.registerAdapterDataObserver(object : RecyclerView.AdapterDataObserver() {
             override fun onItemRangeInserted(positionStart: Int, itemCount: Int) {

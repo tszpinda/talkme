@@ -8,41 +8,12 @@ import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.launch
 import kotlin.random.Random
 
-fun mapMessages(list: List<MessageRaw>): List<Message> {
-    val messages = list.mapIndexed { i: Int, raw: MessageRaw ->
-        Message(
-            raw.id,
-            raw.text,
-            raw.type,
-            raw.time,
-            tail(i, list)
-        )
-    }
-
-
-    val withTimeSeparator = messages.toMutableList()
-    var lastTime = 0L
-    val iterator = withTimeSeparator.listIterator()
-    while (iterator.hasNext()) {
-        val m = iterator.next()
-        if (m.time - lastTime <= 1000 * 60 * 60)
-            continue
-        val date = m.displayDate()
-        iterator.previous()
-        iterator.add(m.copy(text = date, type = MessageType.DATE))
-        iterator.next()
-        lastTime = m.time
-    }
-
-    return withTimeSeparator
-}
-
 class ChatViewModel(private val repo: MessageRepository): ViewModel() {
 
-    val allMessages: LiveData<List<MessageRaw>> = repo.allMessages.asLiveData();
+    val allMessages: LiveData<List<Message>> = repo.allMessages.asLiveData()
 
     fun add(msg: String) = viewModelScope.launch {
-        repo.insert(MessageRaw(id=0, msg, if (Random.nextBoolean()) MessageType.OUT else MessageType.IN))
+        repo.insert(msg, if (Random.nextBoolean()) MessageType.OUT else MessageType.IN)
     }
 
 }

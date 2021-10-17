@@ -4,6 +4,9 @@ import org.junit.Test
 
 import com.google.common.truth.Truth.assertThat
 import com.google.common.truth.Truth.assertWithMessage
+import tszpinda.chat.MessageService.isMostRecent
+import tszpinda.chat.MessageService.isNextMessageAfter20Sec
+import tszpinda.chat.MessageService.isSentByAnotherUser
 import java.time.LocalDateTime
 import java.time.ZoneId
 import java.time.format.DateTimeFormatter
@@ -52,7 +55,7 @@ class MessageTailTest {
     @Test
     fun tail() {
         assertThat(
-            tail(1, listOf(msg(MessageType.IN), msg(MessageType.OUT)))
+            MessageService.tail(1, listOf(msg(MessageType.IN), msg(MessageType.OUT)))
         ).isTrue()
     }
 
