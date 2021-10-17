@@ -15,7 +15,9 @@ import java.time.format.DateTimeFormatter
 
 data class Message (val id: Int, val text: String, val type: MessageType, val time: Long = System.currentTimeMillis(), val tail: Boolean = false)
 
-private val MESSAGE_DISPLAY_DATE = DateTimeFormatter.ofPattern("EEEE HH:mm")
+private val MESSAGE_DISPLAY_DATE = DateTimeFormatter.ofPattern("EEEE")
+private val MESSAGE_DISPLAY_TIME = DateTimeFormatter.ofPattern("HH:mm")
+fun Message.displayTime(): String = LocalDateTime.ofInstant(ofEpochMilli(this.time), systemDefault()).format(MESSAGE_DISPLAY_TIME)
 fun Message.displayDate(): String = LocalDateTime.ofInstant(ofEpochMilli(this.time), systemDefault()).format(MESSAGE_DISPLAY_DATE)
 
 enum class MessageType {

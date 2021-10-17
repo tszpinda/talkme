@@ -17,6 +17,8 @@ import tszpinda.talkme.App
 import tszpinda.talkme.R
 import tszpinda.talkme.chat.Message
 import tszpinda.talkme.chat.MessageType
+import tszpinda.talkme.chat.displayDate
+import tszpinda.talkme.chat.displayTime
 import tszpinda.talkme.databinding.ActivityChatBinding
 
 // TODO
@@ -91,7 +93,8 @@ abstract class MessageViewHolder(binding: ViewBinding) : RecyclerView.ViewHolder
 
     class DateMessageHolder(private val binding: ChatDateDividerBinding) : MessageViewHolder(binding) {
         override fun bind(msg: Message) {
-            binding.date.text = msg.text
+            binding.date.text = msg.displayDate()
+            binding.time.text = msg.displayTime()
         }
     }
 }

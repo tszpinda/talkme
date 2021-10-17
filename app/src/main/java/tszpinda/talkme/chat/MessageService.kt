@@ -34,7 +34,7 @@ object MessageService {
             if (withinHourFromLastMessage)
                 continue
             iterator.previous()
-            iterator.add(msg.copy(id = -1, text = msg.displayDate(), type = MessageType.DATE))
+            iterator.add(msg.copy(id = -1, type = MessageType.DATE))
             iterator.next()
             lastTime = msg.time
         }
