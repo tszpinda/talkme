@@ -55,8 +55,10 @@ class ChatActivity : AppCompatActivity() {
 
         binding.send.setOnClickListener {
             with(binding.messageInput) {
-                viewModel.add(text.toString())
-                text.clear()
+                if (text.toString() != "") {
+                    viewModel.add(text.toString())
+                    text.clear()
+                }
             }
         }
 
