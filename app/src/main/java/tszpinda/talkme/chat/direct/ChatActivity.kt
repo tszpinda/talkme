@@ -5,6 +5,8 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.activity.viewModels
+import androidx.appcompat.app.ActionBar
+import androidx.appcompat.widget.Toolbar
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.ListAdapter
@@ -35,6 +37,11 @@ class ChatActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         binding = ActivityChatBinding.inflate(layoutInflater)
         setContentView(binding.root)
+
+        setSupportActionBar(binding.chatToolbar)
+        supportActionBar?.let {
+            it.setDisplayShowTitleEnabled(false)
+        }
 
         val results: RecyclerView = binding.messages
         val layoutManager = LinearLayoutManager(this)
