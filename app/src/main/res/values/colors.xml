@@ -5,9 +5,19 @@
     <color name="purple_700">#FF3700B3</color>
     <color name="gray_200">#fff2f5fa</color>
     <color name="gray_400">#ffcbd5e0</color>
+    <color name="gray_600">#ff4c5463</color>
     <color name="teal_700">#FF018786</color>
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
 
     <color name="pink">#ff4180</color>
+    <color name="pink_100">#FFe63b73</color>
+    <color name="pink_200">#FFcc3466</color>
+    <color name="pink_300">#FFb32e5a</color>
+    <color name="pink_400">#FF802140</color>
+    <color name="pink_500">#FF802140</color>
+    <color name="pink_600">#FF661a33</color>
+    <color name="pink_700">#FF4c1326</color>
+    <color name="pink_800">#FF330d1a</color>
+    <color name="pink_900">#FF19060d</color>
 </resources>
