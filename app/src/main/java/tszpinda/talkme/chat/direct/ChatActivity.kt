@@ -23,9 +23,6 @@ import tszpinda.talkme.chat.displayDate
 import tszpinda.talkme.chat.displayTime
 import tszpinda.talkme.databinding.ActivityChatBinding
 
-// TODO
-// - dark mode
-// - nav bar
 class ChatActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityChatBinding
